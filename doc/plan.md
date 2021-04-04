@@ -4,13 +4,13 @@
 
 - [x] Make UML diagram
 - [ ] Draw all assets
-  - [ ] Penguin
+  - [x] Penguin
   - [ ] Backgrounds
   - [ ] Ground/Ice texture
   - [ ] Splash
   - [ ] Menu
 - [x] Figure out how SFML works
-- [ ] General code structure
+- [x] General code structure
 
 ## Week 2 (4/8 - 4/14)
 
