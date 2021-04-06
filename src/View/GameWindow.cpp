@@ -2,42 +2,45 @@
  * Email:  sephpace@gmail.com
  */
 
-#include <iostream>
-
-#include <SFML/Graphics.hpp>
-
 #include "GameWindow.hpp"
 
 
-/* Constructor. */
-GameWindow::GameWindow() : window(sf::VideoMode(800, 600), "Penguin Slide") {}
+/* Constructor.
+ *
+ * Parameters:
+ *    level - The id of the level to load first.
+ */
+GameWindow::GameWindow(int level)
+{
+  window = new sf::RenderWindow(sf::VideoMode(800, 600), "Penguin Slide");
+  world = new GameWorld(level);
+  controller = new GameController(this->world);
+}
 
 
 /* Destructor. */
 GameWindow::~GameWindow() 
 {
-
+  delete window;
+  delete world;
+  delete controller;
 }
 
 
-/* Starts the main game loop.
- *
- * Parameters:
- *    level - The id of the level to load first.
- */
-void GameWindow::start(int level)
+/* Starts the main game loop. */
+void GameWindow::start()
 {
   // Run the main game loop
-  while(window.isOpen())
+  while(window->isOpen())
   {
     // Process events
     sf::Event event;
-    while(window.pollEvent(event))
+    while(window->pollEvent(event))
     {
       // Close the game window if an exit event occurs
       if(event.type == sf::Event::Closed)
       {
-        window.close();
+        window->close();
       }
       else // Process input events
       {
@@ -46,11 +49,27 @@ void GameWindow::start(int level)
     }
 
     // Clear the window
-    window.clear();
+    window->clear();
+
+    // Render the player
+    render_player(world->get_player());
 
     // Update the window
-    window.display();
+    window->display();
   }
+}
+
+
+/* Calculates the scale for each sprite to render based on the current size of
+ * the window.
+ *
+ * Returns:
+ *    The value of which to scale all sprites.
+ */
+const float GameWindow::calculate_scale() const
+{
+  // TODO: Actually calculate this based on the window size
+  return 3;
 }
 
 
@@ -66,7 +85,7 @@ void GameWindow::start(int level)
  * Parameters:
  *    event - An input event
  */
-void const GameWindow::handle_inputs(const sf::Event event) const
+const void GameWindow::handle_inputs(const sf::Event event) const
 {
   switch(event.type)
   {
@@ -91,28 +110,28 @@ void const GameWindow::handle_inputs(const sf::Event event) const
  *  Parameters:
  *      key - The key that was pressed.
  */
-void const GameWindow::key_pressed(const sf::Keyboard::Key key) const
+const void GameWindow::key_pressed(const sf::Keyboard::Key key) const
 {
   switch(key)
   {
     case sf::Keyboard::W:
-      std::cout << "W pressed" << std::endl;
+      controller->jump(true);
       break;
 
     case sf::Keyboard::A:
-      std::cout << "A pressed" << std::endl;
+      controller->move_left(true);
       break;
 
     case sf::Keyboard::S:
-      std::cout << "S pressed" << std::endl;
+      controller->duck(true);
       break;
 
     case sf::Keyboard::D:
-      std::cout << "D pressed" << std::endl;
+      controller->move_right(true);
       break;
 
     case sf::Keyboard::Space:
-      std::cout << "Space pressed" << std::endl;
+      controller->jump(true);
       break;
 
     // Ignore all other keypresses
@@ -128,28 +147,28 @@ void const GameWindow::key_pressed(const sf::Keyboard::Key key) const
  *  Parameters:
  *      key - The key that was pressed.
  */
-void const GameWindow::key_released(const sf::Keyboard::Key key) const
+const void GameWindow::key_released(const sf::Keyboard::Key key) const
 {
   switch(key)
   {
     case sf::Keyboard::W:
-      std::cout << "W released" << std::endl;
+      controller->jump(false);
       break;
 
     case sf::Keyboard::A:
-      std::cout << "A released" << std::endl;
+      controller->move_left(false);
       break;
 
     case sf::Keyboard::S:
-      std::cout << "S released" << std::endl;
+      controller->duck(false);
       break;
 
     case sf::Keyboard::D:
-      std::cout << "D released" << std::endl;
+      controller->move_right(false);
       break;
 
     case sf::Keyboard::Space:
-      std::cout << "Space released" << std::endl;
+      controller->jump(false);
       break;
 
     // Ignore all other keypresses
@@ -157,3 +176,20 @@ void const GameWindow::key_released(const sf::Keyboard::Key key) const
       break;
   }
 }
+
+
+/* Renders the player.
+ *
+ * Parameters:
+ *    player - The player object.
+ */
+const void GameWindow::render_player(Player *player) const
+{
+  sf::Sprite sprite = player->get_sprite();
+  sf::Vector2u window_size = window->getSize();
+  sprite.setPosition((float)window_size.x / 2, (float)window_size.y / 2);
+  float scale_value = calculate_scale();
+  sprite.setScale(scale_value, scale_value);
+  window->draw(sprite);
+}
+
