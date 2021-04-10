@@ -12,7 +12,8 @@
  */
 GameController::GameController(GameWorld *world)
 {
-  this->world = world;  
+  this->world = world;
+  elapsed_time = 0;
 }
 
 /* Destructor. */
@@ -29,7 +30,7 @@ GameController::~GameController()
  */
 void GameController::duck(bool activate)
 {
-  world->get_player()->ducking = activate;
+  world->get_player()->set_ducking(activate);
 }
 
 
@@ -40,7 +41,7 @@ void GameController::duck(bool activate)
  */
 void GameController::jump(bool activate)
 {
-  world->get_player()->jumping = activate;
+  // TODO: Add jumping mechanics here
 }
 
 
@@ -52,19 +53,24 @@ void GameController::jump(bool activate)
 void GameController::move_left(bool activate)
 {
   Player *player = world->get_player();
-  if(player->sliding)
+  if(player->is_sliding())
   { 
     // TODO: Rotate left
   }
   else
   {
+    // Start walking left
     if(activate)
     {
       player->velocity.x = -player->WALK_SPEED;
+      player->set_walking(true);
+      player->facing_left = true;
     }
-    else
+    // Stop walking (unless the player has started walking right)
+    else if(player->facing_left)
     {
       player->velocity.x = 0.0;
+      player->set_walking(false);
     }
   }
 }
@@ -78,19 +84,24 @@ void GameController::move_left(bool activate)
 void GameController::move_right(bool activate)
 {
   Player *player = world->get_player();
-  if(player->sliding)
+  if(player->is_sliding())
   { 
     // TODO: Rotate right
   }
   else
   {
+    // Start walking right
     if(activate)
     {
       player->velocity.x = player->WALK_SPEED;
+      player->set_walking(true);
+      player->facing_left = false;
     }
-    else
+    // Stop walking (unless the player has started walking left)
+    else if(!player->facing_left)
     {
       player->velocity.x = 0.0;
+      player->set_walking(false);
     }
   }
 }
@@ -104,5 +115,29 @@ void GameController::move_right(bool activate)
  */
 void GameController::update(sf::Int32 delta)
 {
+  // Calculate the elapsed time
+  elapsed_time += delta;
 
+  // Only progress the frame if the correct amount of time has passed
+  if(elapsed_time >= FRAME_DURATION)
+  {
+    // Reset elapsed time
+    elapsed_time -= FRAME_DURATION;
+
+    // Get the player from the world
+    Player *player = world->get_player();
+
+    // Update frames for walking animation
+    if(player->is_walking())
+    {
+      if(player->walking_frame == 1)
+      {
+        player->walking_frame = 2;
+      }
+      else
+      {
+        player->walking_frame = 1;
+      }
+    }
+  }
 }

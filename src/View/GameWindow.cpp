@@ -4,6 +4,7 @@
 
 #include "GameWindow.hpp"
 
+#include <iostream>
 
 /* Constructor.
  *
@@ -30,6 +31,9 @@ GameWindow::~GameWindow()
 /* Starts the main game loop. */
 void GameWindow::start()
 {
+  // Set up the clock
+  sf::Clock clock;
+
   // Run the main game loop
   while(window->isOpen())
   {
@@ -47,6 +51,10 @@ void GameWindow::start()
         handle_inputs(event);
       }
     }
+
+    // Update game logic
+    sf::Time delta = clock.restart();
+    controller->update(delta.asMilliseconds());
 
     // Clear the window
     window->clear();
@@ -185,11 +193,35 @@ const void GameWindow::key_released(const sf::Keyboard::Key key) const
  */
 const void GameWindow::render_player(Player *player) const
 {
+  // Get the player sprite from the world
   sf::Sprite sprite = player->get_sprite();
-  sf::Vector2u window_size = window->getSize();
-  sprite.setPosition((float)window_size.x / 2, (float)window_size.y / 2);
+
+  // Scale the player
   float scale_value = calculate_scale();
-  sprite.setScale(scale_value, scale_value);
+  sprite.scale(scale_value, scale_value);
+
+  // Center the player on the screen
+  sf::Rect<float> sprite_rect = sprite.getGlobalBounds();
+  sf::Vector2u window_size = window->getSize();
+  sprite.setPosition(((float)window_size.x - sprite_rect.width)  / 2,
+                     ((float)window_size.y - sprite_rect.height) / 2);
+
+  // Adjust the player's position depeding on its state
+  if(player->is_ducking() || player->is_sliding())
+  {
+    sf::Vector2f pos = sprite.getPosition();
+    sprite.setPosition(pos.x, pos.y + sprite_rect.height / 4);
+  }
+
+  // Flip the player if facing left
+  if(player->facing_left)
+  {
+    sprite.scale(-1.f, 1.f);
+    sf::Vector2f pos = sprite.getPosition();
+    sprite.setPosition(pos.x + sprite_rect.width, pos.y);
+  }
+
+  // Draw the player to the screen
   window->draw(sprite);
 }
 

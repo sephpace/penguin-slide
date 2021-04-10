@@ -26,7 +26,9 @@ class GameController
     void update(sf::Int32 delta);     // Updates the game logic for the current frame.
 
   private:
+    const int FRAME_DURATION = 128;   // The target amount of milliseconds per frame.
     GameWorld *world;                 // The game world
+    int elapsed_time;                 // The amount of milliseconds that have passed for the current frame.
 };
 
 #endif

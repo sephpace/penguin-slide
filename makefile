@@ -1,26 +1,23 @@
-.Phony: all clean
+.Phony: main model view controller clean
 
-all: penguin_slide
+penguin_slide: main.o GameWorld.o Player.o GameWindow.o GameController.o
+	g++ $(DEBUG) main.o GameWorld.o Player.o GameWindow.o GameController.o -o penguin_slide -lsfml-graphics -lsfml-window -lsfml-system
 
-penguin_slide: src/main.o src/Model/GameWorld.o src/Model/Player.o src/View/GameWindow.o src/Controller/GameController.o
-	g++ src/main.o src/Model/GameWorld.o src/Model/Player.o src/View/GameWindow.o src/Controller/GameController.o -o penguin_slide -lsfml-graphics -lsfml-window -lsfml-system
+main.o: src/main.cpp
+	g++ -c $(DEBUG) src/main.cpp
 
-src/main.o: src/main.cpp
-	g++ -c src/main.cpp -o src/main.o
+GameWorld.o Player.o: src/Model/*.cpp src/Model/*.hpp
+	g++ -c $(DEBUG) src/Model/GameWorld.cpp src/Model/Player.cpp
 
-model: src/Model/GameWorld.cpp src/Model/Player.cpp
-	g++ -c src/Model/GameWorld.cpp src/Model/Player.cpp
+GameWindow.o: src/View/*.cpp src/View/*.hpp
+	g++ -c $(DEBUG) src/View/GameWindow.cpp
 
-view: src/View/GameWindow.cpp
-	g++ -c src/View/GameWindow.cpp
-
-controller: src/Controller/GameController.cpp
-	g++ -c src/Controller/GameController.cpp
+GameController.o: src/Controller/*.cpp src/Controller/*.hpp
+	g++ -c $(DEBUG) src/Controller/GameController.cpp
 
 clean:
 	rm -rf penguin_slide
-	rm -rf src/main.o
-	rm -rf src/Model/GameWorld.o
-	rm -rf src/Model/Player.o
-	rm -rf src/View/GameWindow.o
-	rm -rf src/Controller/GameController.o
+	rm -rf *.o	
+
+debug: DEBUG = -g
+debug: clean penguin_slide

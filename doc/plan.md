@@ -22,13 +22,13 @@
   - [ ] Movement
   - [ ] Rotation
   - [ ] Jump
-  - [ ] Walk vs. slide
+  - [x] Walk vs. slide
 
 ## Week 3 (4/14 - 4/20)
 
 - [ ] Animations
   - [ ] Idle
-  - [ ] Walk
+  - [x] Walk
   - [ ] Flap down
   - [ ] Flap up
   - [ ] Die
